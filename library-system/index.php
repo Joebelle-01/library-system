@@ -71,7 +71,7 @@ $flash = consume_flash();
     </div>
     
     <?php if ($flash): ?>
-      <div class="alert alert-danger"><?= e($flash['message']) ?></div>
+      <div class="alert alert-<?= $flash['type'] === 'success' ? 'success' : 'danger' ?>"><?= e($flash['message']) ?></div>
     <?php endif; ?>
     
     <form method="post" class="needs-validation" novalidate>
