@@ -9,8 +9,6 @@ $nav = [
     ['reservations', 'Reservations', '/admin/reservations_admin.php', 'bi-calendar-check'],
     ['fines', 'Fines', '/admin/fines.php', 'bi-cash-coin'],
     ['reports', 'Reports', '/reports/index.php', 'bi-printer'],
-    ['analytics', 'Analytics', '/admin/analytics.php', 'bi-graph-up-arrow'],
-    ['etl', 'ETL Process', '/etl/etl_process.php', 'bi-database-gear'],
 ];
 
 if (current_user()['role'] === 'admin') {

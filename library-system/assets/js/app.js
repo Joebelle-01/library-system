@@ -76,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   renderDashboardCharts();
-  renderWarehouseCharts();
 
   // Reset bookModal when closed to prevent state leakage
   const bookModal = document.getElementById('bookModal');
@@ -137,31 +136,5 @@ async function renderDashboardCharts() {
   });
 }
 
-function renderWarehouseCharts() {
-  const monthly = document.getElementById('warehouseMonthlyChart');
-  if (!monthly || !window.Chart) return;
-  const labels = JSON.parse(monthly.dataset.labels || '[]');
-  const borrows = JSON.parse(monthly.dataset.borrows || '[]');
-  const fines = JSON.parse(monthly.dataset.fines || '[]');
-  new Chart(monthly, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Borrows', data: borrows, backgroundColor: '#2563eb' },
-        { label: 'Fines', data: fines, backgroundColor: '#16a34a' }
-      ]
-    }
-  });
-  const fine = document.getElementById('fineChart');
-  if (fine) {
-    new Chart(fine, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [{ data: fines, backgroundColor: ['#16a34a', '#2563eb', '#f59e0b', '#dc2626', '#7c3aed', '#0891b2'] }]
-      }
-    });
-  }
-}
+
 
