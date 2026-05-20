@@ -111,15 +111,14 @@ async function renderDashboardCharts() {
       datasets: [{ label: 'Borrows', data: data.trend.map((item) => item.total), borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,.12)', tension: .35, fill: true }]
     }
   });
-  new Chart(topCanvas, {
-    type: 'bar',
-    data: {
-      labels: data.topBooks.map((item) => item.label),
-      datasets: [{ label: 'Borrow Count', data: data.topBooks.map((item) => item.total), backgroundColor: ['#2563eb', '#16a34a', '#f59e0b', '#dc2626', '#7c3aed'] }]
-    },
-    options: { indexAxis: 'y' }
-  });
+  if (topCanvas) {
+    new Chart(topCanvas, {
+      type: 'bar',
+      data: {
+        labels: data.topBooks.map((item) => item.label),
+        datasets: [{ label: 'Borrow Count', data: data.topBooks.map((item) => item.total), backgroundColor: ['#2563eb', '#16a34a', '#f59e0b', '#dc2626', '#7c3aed'] }]
+      },
+      options: { indexAxis: 'y' }
+    });
+  }
 }
-
-
-
