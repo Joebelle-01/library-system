@@ -60,21 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  const borrowBookSelect = document.getElementById('borrowBookSelect');
-  if (borrowBookSelect) {
-    borrowBookSelect.addEventListener('change', async () => {
-      const target = document.getElementById('availabilityText');
-      if (!borrowBookSelect.value) {
-        target.textContent = 'Choose a book to check availability.';
-        return;
-      }
-      const response = await fetch(`${window.APP_URL || '/library-system'}/admin/api_book.php?id=${borrowBookSelect.value}`);
-      const data = await response.json();
-      target.textContent = `${data.available_copies || 0} available copies`;
-      target.className = (Number(data.available_copies) > 0) ? 'form-text text-success' : 'form-text text-danger';
-    });
-  }
-
   renderDashboardCharts();
 
   // Reset bookModal when closed to prevent state leakage
