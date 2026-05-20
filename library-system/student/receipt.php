@@ -22,7 +22,7 @@ $stmt = $pdo->prepare("
            COALESCE(f.daily_rate, 0) AS daily_rate,
            CONCAT(s.first_name, ' ', s.last_name) AS student_name,
            s.student_no, s.course, s.year_level,
-           CONCAT(u.first_name, ' ', u.last_name) AS returned_by_name,
+           u.name AS returned_by_name,
            u.role AS returned_by_role
     FROM borrow_records br
     INNER JOIN books b ON b.id = br.book_id

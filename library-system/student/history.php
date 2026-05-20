@@ -30,7 +30,7 @@ $stmt = $pdo->prepare("
            b.title, b.author, b.isbn,
            COALESCE(f.amount, 0) AS fine_amount,
            COALESCE(f.status, 'none') AS fine_status,
-           CONCAT(u.first_name, ' ', u.last_name) AS returned_by_name
+           u.name AS returned_by_name
     FROM borrow_records br
     INNER JOIN books b ON b.id = br.book_id
     LEFT JOIN fines f ON f.borrow_record_id = br.id
