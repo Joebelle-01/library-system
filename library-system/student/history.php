@@ -185,4 +185,4 @@ $totalPaid    = (float) query_value($pdo, "SELECT COALESCE(SUM(f.amount),0) FROM
   </div>
 </div>
 
-<?php require_once __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>

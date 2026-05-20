@@ -113,4 +113,4 @@ $borrowedIds = $borrowedBooks->fetchAll(PDO::FETCH_COLUMN);
   </div>
 </div>
 
-<?php require_once __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
