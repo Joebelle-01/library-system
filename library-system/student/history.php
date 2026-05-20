@@ -8,19 +8,21 @@ $studentId = current_student()['id'];
 
 // Filter support
 $filter = $_GET['filter'] ?? 'all';
-$allowedFilters = ['all', 'returned', 'overdue', 'fined'];
+$allowedFilters = ['all', 'ontime', 'late', 'fined'];
 
 if (!in_array($filter, $allowedFilters, true)) {
     $filter = 'all';
 }
 
 $whereClauses = ['br.student_id = ?', 'br.return_date IS NOT NULL'];
-if ($filter === 'overdue') {
-    $whereClauses[] = "br.status = 'overdue' OR (br.due_date < br.return_date)";
+if ($filter === 'late') {
+    // Books that were returned AFTER the due date
+    $whereClauses[] = 'br.return_date > br.due_date';
 } elseif ($filter === 'fined') {
     $whereClauses[] = 'f.amount > 0';
-} elseif ($filter === 'returned') {
-    $whereClauses[] = "br.status = 'returned'";
+} elseif ($filter === 'ontime') {
+    // Books returned ON or BEFORE the due date
+    $whereClauses[] = 'br.return_date <= br.due_date';
 }
 
 $whereSQL = implode(' AND ', $whereClauses);
@@ -82,10 +84,10 @@ $totalPaid    = (float) query_value($pdo, "SELECT COALESCE(SUM(f.amount),0) FROM
     <div class="d-flex gap-2 flex-wrap">
       <?php
         $filters = [
-          'all'      => ['label' => 'All', 'icon' => 'bi-list-ul'],
-          'returned' => ['label' => 'On Time', 'icon' => 'bi-check-circle'],
-          'overdue'  => ['label' => 'Overdue', 'icon' => 'bi-exclamation-circle'],
-          'fined'    => ['label' => 'Fined', 'icon' => 'bi-cash-coin'],
+          'all'    => ['label' => 'All',          'icon' => 'bi-list-ul'],
+          'ontime' => ['label' => 'On Time',       'icon' => 'bi-check-circle'],
+          'late'   => ['label' => 'Late Returns',  'icon' => 'bi-clock-history'],
+          'fined'  => ['label' => 'Fined',         'icon' => 'bi-cash-coin'],
         ];
         foreach ($filters as $key => $meta):
           $active_class = $filter === $key ? 'btn-primary' : 'btn-outline-secondary';
