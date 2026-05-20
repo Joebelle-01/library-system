@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$studentNo, $firstName, $lastName, $course, $yearLevel, $email, $hashed, $phone, $address]);
 
             flash('success', 'Registration successful! You can now log in.');
-            header('Location: ' . APP_URL . '/student_login.php');
+            header('Location: ' . APP_URL . '/index.php');
             exit;
         } catch (Throwable $e) {
             flash('error', $e->getMessage());
@@ -135,7 +135,7 @@ $flash = consume_flash();
     </form>
     
     <div class="text-center mt-4">
-      <span class="text-secondary">Already have a student account?</span> <a href="<?= APP_URL ?>/student_login.php" class="text-primary font-weight-bold">Login Here</a>
+      <span class="text-secondary">Already have a student account?</span> <a href="<?= APP_URL ?>/index.php" class="text-primary fw-bold ms-1">Login Here</a>
     </div>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -91,7 +91,7 @@ function fine_for(DateTimeInterface $dueDate, ?DateTimeInterface $returnDate = n
 function require_student_login(): void
 {
     if (empty($_SESSION['student'])) {
-        header('Location: ' . APP_URL . '/student_login.php');
+        header('Location: ' . APP_URL . '/index.php');
         exit;
     }
 }
