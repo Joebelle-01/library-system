@@ -26,7 +26,7 @@ $activeBorrows = $pdo->prepare("
 $activeBorrows->execute([$studentId]);
 $activeRows = $activeBorrows->fetchAll();
 
-// Past borrow history
+// Past borrow history (for bottom panel)
 $pastBorrows = $pdo->prepare("
     SELECT br.*, b.title, b.author, b.isbn,
            COALESCE(f.amount, 0) AS fine_amount, COALESCE(f.status, 'none') AS fine_status
@@ -39,7 +39,49 @@ $pastBorrows = $pdo->prepare("
 ");
 $pastBorrows->execute([$studentId]);
 $pastRows = $pastBorrows->fetchAll();
+
+// Recent returns for confirmation banners (last 7 days)
+$recentReturns = $pdo->prepare("
+    SELECT br.id, br.return_date, b.title,
+           COALESCE(f.amount, 0) AS fine_amount, COALESCE(f.status, 'none') AS fine_status
+    FROM borrow_records br
+    INNER JOIN books b ON b.id = br.book_id
+    LEFT JOIN fines f ON f.borrow_record_id = br.id
+    WHERE br.student_id = ? AND br.return_date IS NOT NULL
+      AND br.return_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+    ORDER BY br.return_date DESC
+    LIMIT 5
+");
+$recentReturns->execute([$studentId]);
+$recentReturnRows = $recentReturns->fetchAll();
 ?>
+
+<?php if (!empty($recentReturnRows)): ?>
+<div class="mb-4" id="return-banners">
+  <?php foreach ($recentReturnRows as $r): ?>
+    <?php
+      $fineLabel = '';
+      if ((float)$r['fine_amount'] > 0) {
+          $fineLabel = $r['fine_status'] === 'paid'
+              ? ' &mdash; Fine of ' . money($r['fine_amount']) . ' <strong>paid</strong>.'
+              : ' &mdash; Fine of <strong>' . money($r['fine_amount']) . '</strong> pending.';
+      } else {
+          $fineLabel = ' &mdash; <span class="fw-semibold text-success">No fine incurred.</span>';
+      }
+    ?>
+    <div class="alert alert-success alert-dismissible d-flex align-items-start gap-2 mb-2 shadow-sm border-0" role="alert" style="border-radius:12px;background:linear-gradient(135deg,#d1fae5,#a7f3d0);">
+      <i class="bi bi-check-circle-fill text-success fs-4 mt-1 flex-shrink-0"></i>
+      <div>
+        <span class="fw-bold">Return Confirmed!</span> <em><?= e($r['title']) ?></em> was successfully checked in on <strong><?= date('F j, Y', strtotime($r['return_date'])) ?></strong><?= $fineLabel ?>
+        <div class="mt-1">
+          <a href="<?= APP_URL ?>/student/receipt.php?id=<?= (int)$r['id'] ?>" class="btn btn-sm btn-outline-success py-0 px-2" target="_blank"><i class="bi bi-printer me-1"></i>Print Receipt</a>
+        </div>
+      </div>
+      <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+    </div>
+  <?php endforeach; ?>
+</div>
+<?php endif; ?>
 
 <div class="row g-3 mb-4">
   <div class="col-12 col-md-4">
@@ -77,7 +119,7 @@ $pastRows = $pastBorrows->fetchAll();
   </div>
   <div class="table-responsive">
     <table class="table align-middle">
-      <thead><tr><th>Book Title</th><th>ISBN</th><th>Borrow Date</th><th>Due Date</th><th>Status</th><th>Accrued Fine</th></tr></thead>
+      <thead><tr><th>Book Title</th><th>ISBN</th><th>Borrow Date</th><th>Due Date</th><th>Time Remaining</th><th>Accrued Fine</th></tr></thead>
       <tbody>
       <?php if (empty($activeRows)): ?>
         <tr><td colspan="6" class="text-center text-secondary py-4">You do not have any active books checked out.</td></tr>
@@ -86,10 +128,26 @@ $pastRows = $pastBorrows->fetchAll();
           <tr>
             <td><strong><?= e($row['title']) ?></strong><br><small class="text-secondary">by <?= e($row['author']) ?></small></td>
             <td><?= e($row['isbn']) ?></td>
-            <td><?= e($row['borrow_date']) ?></td>
-            <td><?= e($row['due_date']) ?></td>
+            <td><?= date('M j, Y', strtotime($row['borrow_date'])) ?></td>
+            <td><?= date('M j, Y', strtotime($row['due_date'])) ?></td>
             <td>
-              <span class="badge text-bg-<?= $row['status'] === 'overdue' ? 'danger' : 'primary' ?>"><?= e($row['status']) ?></span>
+              <?php
+                $due = new DateTime($row['due_date']);
+                $today = new DateTime('today');
+                $diff = (int) $today->diff($due)->format('%r%a'); // negative = overdue
+                if ($diff < 0) {
+                    $days = abs($diff);
+                    echo '<span class="badge text-bg-danger"><i class="bi bi-exclamation-circle me-1"></i>Overdue by ' . $days . ' day' . ($days > 1 ? 's' : '') . '</span>';
+                } elseif ($diff === 0) {
+                    echo '<span class="badge text-bg-warning text-dark"><i class="bi bi-clock me-1"></i>Due today!</span>';
+                } elseif ($diff === 1) {
+                    echo '<span class="badge text-bg-warning text-dark"><i class="bi bi-clock me-1"></i>Due tomorrow</span>';
+                } elseif ($diff <= 3) {
+                    echo '<span class="badge text-bg-warning text-dark"><i class="bi bi-clock me-1"></i>Due in ' . $diff . ' days</span>';
+                } else {
+                    echo '<span class="badge text-bg-success"><i class="bi bi-check-circle me-1"></i>Due in ' . $diff . ' days</span>';
+                }
+              ?>
             </td>
             <td>
               <?php 

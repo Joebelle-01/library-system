@@ -3,6 +3,7 @@ $studentNav = [
     ['dashboard', 'My Dashboard', '/student/dashboard.php', 'bi-speedometer2'],
     ['catalog', 'Book Catalog', '/student/catalog.php', 'bi-journal-bookmark'],
     ['reservations', 'My Reservations', '/student/reservations.php', 'bi-calendar-check'],
+    ['history', 'Borrow History', '/student/history.php', 'bi-clock-history'],
     ['profile', 'My Profile', '/student/profile.php', 'bi-person-gear'],
 ];
 ?>
